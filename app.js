@@ -144,16 +144,37 @@ app.get('/pastSession/:name', function(req, res){
   var sessionsRef = new Firebase('https://actual-holodeck.firebaseio.com/sessions/' + req.params.name);
   sessionsRef.on('value', function(snapshot){
     session = snapshot.val();
-    console.log(session);
     desktop.pastSession(req, res, {session: session});
   });
-
-  //console.log(req.params.name);
 
 });
 
 app.get('/projector', function (req, res){
 
   projector.view(req, res);
+
+});
+
+app.post('/postComment', function(req, res){
+
+  //post comment to firebase
+  var sessionName = app.get('currentSession');
+
+  var comment = req.body.comment;
+  var x_percent = req.body.x_percent;
+  var y_percent = req.body.y_percent;
+
+  var sessionsRef = new Firebase('https://actual-holodeck.firebaseio.com/sessions/' + sessionName + '/comments');
+  
+
+  // Generate a reference to a new location with push
+  var newPushRef = sessionsRef.push();
+
+  // Set some data to the generated location
+  newPushRef.set({comment: comment, x_percent: x_percent, y_percent: y_percent});
+
+  mobile.view(req, res);
+
+  //console.log(req.body);
 
 });

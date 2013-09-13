@@ -2,4 +2,12 @@ extends layout
 
 block content
     #projection
-        img(src="https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcQ8S2GN0ZJCdUfUofr7kxW-OII9QpwVaW0WpUr_w6ssW8jk7X-Tuw")
+        canvas#fullscreen(src="https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcQ8S2GN0ZJCdUfUofr7kxW-OII9QpwVaW0WpUr_w6ssW8jk7X-Tuw")
+
+    script.
+        $(window).load(function() {
+
+            $("#fullscreen").height($(window).height());
+            $("#fullscreen").width($(window).width());
+
+        });

@@ -9,21 +9,65 @@ block content
             a.icon.load(href="/loadSession")
             a.icon.end(href="/endSession")
 
+    #commentContainer
+        form(id='commentForm',action='/postComment',method='post')
+            textarea(id='comment',placeholder='Your Comment',name='comment') 
+            input(type='hidden', id="x_percent", name="x_percent")
+            input(type='hidden', id="y_percent", name="y_percent")
+            input(type='submit',value='Post Comment') 
+
     script.
         $(window).load(function() {
 
             //should probably reload this on orientation change
-            $("#fullCanvas").height($(document).height());
-            $("#fullCanvas").width($(document).width());
+            $("#fullCanvas").height($(window).height());
+            $("#fullCanvas").width($(window).width());
 
         });
 
         //bind all events
         $(function(){
-            $("#fullCanvas").bind("click", showMenu); //change to tap?
-            
+            //$("#fullCanvas").bind("click", showMenu); //change to tap?
+            //$("#fullCanvas").bind("dblclick", showComment); //change to tap?
+
+            $('#fullCanvas').click(function(e) {
+                var that = this;
+                setTimeout(function() {
+                    var dblclick = parseInt($(that).data('double'), 10);
+                    if (dblclick > 0) {
+                        $(that).data('double', dblclick-1);
+                    } else {
+                        showMenu.call(that, e);
+                    }
+                }, 300);
+            }).dblclick(function(e) {
+                $(this).data('double', 2);
+                showComment.call(this, e);
+            });
+
+
             function showMenu(event){
+                console.log('in show menu');
                 $(".footerMenu").toggle();
+            }
+
+            function showComment(event){
+                console.log('in show comment');
+
+                var mouseX = event.clientX;
+                var mouseY = event.clientY;
+
+                var totalWidth = $(window).width();
+                var totalHeight = $(window).height();
+
+                var percentX = mouseX/totalWidth;
+                var percentY = mouseY/totalHeight;
+
+                $('#x_percent').val(percentX);
+                $('#y_percent').val(percentY);
+
+                $("#commentContainer").offset({top: mouseY, left: mouseX});
+                $("#commentContainer").show();
             }
 
         });

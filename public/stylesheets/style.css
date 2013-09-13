@@ -7,7 +7,7 @@ a {
 }
 
 
-#mobile #fullCanvas {
+#mobile #fullCanvas, #projection #fullscreen {
 	background-color:#efefef;
 }
 
@@ -38,7 +38,17 @@ a {
 	background-image:url('/images/capture_icon.png');
 }
 
-
+#commentContainer {
+	display:none;
+	height:100px;
+	width:300px;
+	background-color:#ccc;
+	position:fixed;
+}
+#commentContainer textarea{
+	width:95%;
+	position:block;
+}
 
 /**list of past sessions **/
 #sessionsJSONContainer{
