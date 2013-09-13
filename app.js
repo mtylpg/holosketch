@@ -8,6 +8,7 @@ var routes = require('./routes');
 var user = require('./routes/user');
 var mobile = require('./routes/mobile');
 var desktop = require('./routes/desktop');
+var projector = require('./routes/projector');
 var http = require('http');
 var path = require('path');
 var fs = require('fs');
@@ -98,17 +99,27 @@ app.get('/loadSession', function(req, res){
 
 app.post('/start', function (req, res){
 
-  //create session and save 
-  var sessionName = req.body.name;
-  var startTime = new Date().toString();
+  if (req.body.name){
 
-  var sessionsRef = new Firebase('https://actual-holodeck.firebaseio.com/sessions');
-  sessionsRef.child(sessionName).set({name: sessionName, startTime: startTime});
+    //create session and save 
+    var sessionName = req.body.name;
+    var startTime = new Date().toString();
 
-  app.set('currentSession', sessionName);
+    //TODO: we probably want to check to see if the name already exists
+    var sessionsRef = new Firebase('https://actual-holodeck.firebaseio.com/sessions');
+    sessionsRef.child(sessionName).set({name: sessionName, startTime: startTime});
 
-  //reroute
-  mobile.view(req, res);
+    app.set('currentSession', sessionName);
+
+    //reroute
+    mobile.view(req, res);
+
+  } else {
+
+    //no param, go back to create
+    mobile.create(req, res);
+
+  }
 
 });
 
@@ -138,5 +149,11 @@ app.get('/pastSession/:name', function(req, res){
   });
 
   //console.log(req.params.name);
+
+});
+
+app.get('/projector', function (req, res){
+
+  projector.view(req, res);
 
 });

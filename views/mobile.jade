@@ -11,7 +11,7 @@ block content
 
     script.
         $(window).load(function() {
-            
+
             //should probably reload this on orientation change
             $("#fullCanvas").height($(document).height());
             $("#fullCanvas").width($(document).width());
@@ -20,8 +20,7 @@ block content
 
         //bind all events
         $(function(){
-            $("#fullCanvas").bind("click", showMenu); 
-            //change to tap
+            $("#fullCanvas").bind("click", showMenu); //change to tap?
             
             function showMenu(event){
                 $(".footerMenu").toggle();
