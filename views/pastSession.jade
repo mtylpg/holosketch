@@ -1,0 +1,24 @@
+extends layout
+
+block content
+    #mobile
+        div Loading Session:
+        div #{session.name} on #{session.startTime}
+
+    script.
+        /*
+        var sessions = jQuery.parseJSON($('#sessionsJSONContainer').html());
+
+        for (var i in sessions){
+            if(sessions[i].image){
+
+                var sessionDate = new Date(sessions[i].startTime);
+
+                $('#mobile').append('<div class="sessionContainer"> <img src="' +  sessions[i].image + '">' + i + ' on ' + sessionDate.toDateString() + '</div>');
+
+
+            }
+        }
+        */
+
+        

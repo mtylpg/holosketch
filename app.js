@@ -6,9 +6,15 @@
 var express = require('express');
 var routes = require('./routes');
 var user = require('./routes/user');
+var mobile = require('./routes/mobile');
+var desktop = require('./routes/desktop');
 var http = require('http');
 var path = require('path');
 var fs = require('fs');
+
+var Firebase = require('firebase');
+var myRootRef = new Firebase('https://actual-holodeck.firebaseio.com/');
+
 
 var app = express();
 
@@ -27,9 +33,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 if ('development' == app.get('env')) {
   app.use(express.errorHandler());
 }
-
-app.get('/', routes.index);
-app.get('/users', user.list);
 
 server = http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
@@ -64,3 +67,76 @@ io.sockets.on('connection', function (socket) {
 
 });
 
+
+//routing
+app.get('/', routes.index);
+app.get('/users', user.list);
+app.get('/mobile', function(req, res){
+
+  //routing
+
+  //1. enter holodeck launch screen - optional
+  //can we combine this with the naming screen?
+
+  //2. enter name, drop cookie - optional
+
+  //3. is there a holodeck running? if not, give us a name for one
+  if(app.get('currentSession')){
+    //get info on the holodeck?
+    mobile.view(req, res);
+  } else {
+    mobile.create(req, res);
+  }
+});
+
+app.get('/loadSession', function(req, res){
+  myRootRef.on('value', function(snapshot){
+    sessions = snapshot.val().sessions;
+    mobile.loadSession(req, res, {sessions: sessions});
+  });
+});
+
+app.post('/start', function (req, res){
+
+  //create session and save 
+  var sessionName = req.body.name;
+  var startTime = new Date().toString();
+
+  var sessionsRef = new Firebase('https://actual-holodeck.firebaseio.com/sessions');
+  sessionsRef.child(sessionName).set({name: sessionName, startTime: startTime});
+
+  app.set('currentSession', sessionName);
+
+  //reroute
+  mobile.view(req, res);
+
+});
+
+app.get('/endSession', function(req, res){
+
+  //fetch session, set end time, and close out
+  var sessionName = app.get('currentSession');
+  var endTime = new Date().toString();
+
+  var sessionsRef = new Firebase('https://actual-holodeck.firebaseio.com/sessions/' + sessionName);
+  sessionsRef.child('endTime').set(endTime);
+
+  app.set('currentSession', null);
+
+  //reroute
+  mobile.create(req, res);
+
+});
+
+app.get('/pastSession/:name', function(req, res){
+
+  var sessionsRef = new Firebase('https://actual-holodeck.firebaseio.com/sessions/' + req.params.name);
+  sessionsRef.on('value', function(snapshot){
+    session = snapshot.val();
+    console.log(session);
+    desktop.pastSession(req, res, {session: session});
+  });
+
+  //console.log(req.params.name);
+
+});

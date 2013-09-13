@@ -1,0 +1,30 @@
+extends layout
+
+block content
+    #mobile
+        canvas#fullCanvas sdf
+        //.footerMenu this is the menu
+        div.footerMenu(data-role='footer')
+            a.icon.capture(href="/capture")
+            a.icon.load(href="/loadSession")
+            a.icon.end(href="/endSession")
+
+    script.
+        $(window).load(function() {
+            
+            //should probably reload this on orientation change
+            $("#fullCanvas").height($(document).height());
+            $("#fullCanvas").width($(document).width());
+
+        });
+
+        //bind all events
+        $(function(){
+            $("#fullCanvas").bind("click", showMenu); 
+            //change to tap
+            
+            function showMenu(event){
+                $(".footerMenu").toggle();
+            }
+
+        });

@@ -1,8 +1,56 @@
 body {
-  padding: 50px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
 a {
   color: #00B7FF;
+}
+
+
+#mobile #fullCanvas {
+	background-color:#efefef;
+}
+
+#mobile .footerMenu {
+	bottom:0px;
+	width:100%;
+	position:fixed;
+	background-color:black;
+	text-align:center;
+	display:none;
+	opacity:.5;
+}
+
+#mobile .footerMenu .icon {
+	height:64px;
+	width:64px;
+	display:inline-block;
+	margin:2% 5%;
+}
+
+#mobile .footerMenu .load {
+	background-image:url('/images/load_icon.png');
+}
+#mobile .footerMenu .end {
+	background-image:url('/images/close_icon.png');
+}
+#mobile .footerMenu .capture {
+	background-image:url('/images/capture_icon.png');
+}
+
+
+
+/**list of past sessions **/
+#sessionsJSONContainer{
+	display:none;
+}
+
+.sessionContainer{
+	width:40%;
+	margin:5%;
+	float:left;
+}
+
+.sessionContainer img{
+	width:100%;
 }
