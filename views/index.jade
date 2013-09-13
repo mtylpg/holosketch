@@ -1,0 +1,116 @@
+extends layout
+
+block content
+  h1 #{title}
+  video#webcam(width=640,height=480,style='display:none')
+  div(style='width:640px,height:480px,margin: 10px auto')
+    canvas#canvas(width=640,height=480)
+    div#no_rtc.alert.alert-error(style='display:none')
+    div#log.alert.alert-info
+    button#save.btn.btn-inverse Save Image
+
+  script.
+        $(window).load(function() {
+            "use strict";
+            var winWidth=640;
+            var winHeight=480;
+            var video = document.getElementById('webcam');
+            var canvas = document.getElementById('canvas');
+            var socket = io.connect('http://localhost');
+
+            init();
+
+            function init(){
+
+              $(window).resize(function() {
+                //- responsive();
+              });    
+              $('#save').on('click', function(){
+                var img = convertCanvasToImage(canvas);
+                $('body').append(img);
+                socket.emit('clientSendImage', $(img).attr('src'));
+              });
+            }
+            function responsive() {
+              winWidth = $(window).width();
+              winHeight = parseInt(winWidth*3/4);
+              $('#canvas').width(winWidth);
+              $('#canvas').height(winHeight);
+              $('#webcam').width(winWidth);
+              $('#webcam').height(winHeight);
+            }
+            function convertCanvasToImage(canvas) {
+              var image = new Image();
+              image.src = canvas.toDataURL("image/png");
+              return image;
+            }
+            try {
+                compatibility.getUserMedia({video: true}, function(stream) {
+                    try {
+                        video.src = compatibility.URL.createObjectURL(stream);
+                    } catch (error) {
+                        video.src = stream;
+                    }
+                    setTimeout(function() {
+                            video.play();
+                            demo_app();
+                        
+                            compatibility.requestAnimationFrame(tick);
+                        }, 500);
+                }, function (error) {
+                    $('#canvas').hide();
+                    $('#log').hide();
+                    $('#no_rtc').html('<h4>WebRTC not available.</h4>');
+                    $('#no_rtc').show();
+                });
+            } catch (error) {
+                $('#canvas').hide();
+                $('#log').hide();
+                $('#no_rtc').html('<h4>Something goes wrong...</h4>');
+                $('#no_rtc').show();
+            }
+            var stat = new profiler();
+            var gui,ctx,canvasWidth,canvasHeight;
+            var img_u8;
+            function demo_app() {
+                canvasWidth  = canvas.width;
+                canvasHeight = canvas.height;
+                ctx = canvas.getContext('2d');
+
+                ctx.fillStyle = "rgb(0,255,0)";
+                ctx.strokeStyle = "rgb(0,255,0)";
+
+                img_u8 = new jsfeat.matrix_t(winWidth, winHeight, jsfeat.U8_t | jsfeat.C1_t);
+
+                stat.add("grayscale");
+            }
+            function tick() {
+                compatibility.requestAnimationFrame(tick);
+                stat.new_frame();
+                if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                    ctx.drawImage(video, 0, 0, winWidth, winHeight);
+                    var imageData = ctx.getImageData(0, 0, winWidth, winHeight);
+
+                    stat.start("grayscale");
+                    jsfeat.imgproc.grayscale(imageData.data, img_u8.data);
+                    stat.stop("grayscale");
+
+                    // render result back to canvas
+                    var data_u32 = new Uint32Array(imageData.data.buffer);
+                    var alpha = (0xff << 24);
+                    var i = img_u8.cols*img_u8.rows, pix = 0;
+                    while(--i >= 0) {
+                        pix = img_u8.data[i];
+                        data_u32[i] = alpha | (pix << 16) | (pix << 8) | pix;
+                    }
+                    
+                    ctx.putImageData(imageData, 0, 0);
+
+                    $('#log').html(stat.log());
+                }
+            }
+            $(window).unload(function() {
+                video.pause();
+                video.src=null;
+            });
+        });
